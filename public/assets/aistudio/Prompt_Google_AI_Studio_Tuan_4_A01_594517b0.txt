@@ -1,0 +1,90 @@
+﻿MASTER PROMPT – GOOGLE AI STUDIO | TUẦN 4 – A01
+HỒ SƠ SỐ 13 DI SẢN TƯ LIỆU VIỆT NAM ĐƯỢC UNESCO GHI DANH
+
+Giai đoạn 1. Xây dựng ứng dụng
+
+1. BỐI CẢNH VÀ MỤC TIÊU
+Bạn là chuyên gia full-stack, UI/UX và số hóa di sản. Hãy trực tiếp Build một website tiếng Việt hoàn chỉnh tên “Ký Ức Việt – Hồ sơ số di sản tư liệu”, mã A01, Trần Mạnh Trường – PH59448 – Nhóm 1, Chương trình Thực tập sinh Đợt 15 FPT Polytechnic × IMTA TECH. Dự án xã hội phi lợi nhuận, không bán hàng, thu phí hoặc quảng cáo. Mục tiêu: tra cứu 13 di sản tư liệu theo kế hoạch tuần 4 (mốc 05/11/2026), 4 thế giới và 9 khu vực châu Á – Thái Bình Dương; giới thiệu nơi lưu giữ và nguồn gốc; hỗ trợ học tập, bảo tồn. Bổ sung 2 hồ sơ con của bộ bia Tiến sĩ để tạo danh mục 15 bản ghi dự kiến; không gọi là 15 di sản UNESCO. Đây là phương án triển khai cần trưởng nhóm xác nhận do yêu cầu chung còn quy định một khối tư liệu cụ thể. Không gán trạng thái đủ điều kiện nghiệm thu chỉ vì có 15 hàng dữ liệu.
+
+2. NGƯỜI DÙNG MỤC TIÊU
+Học sinh, sinh viên, giáo viên, người nghiên cứu, cộng đồng quan tâm di sản; ưu tiên điện thoại, thao tác đơn giản, có khả năng đọc bằng công nghệ hỗ trợ.
+
+3. MÀN HÌNH VÀ CHỨC NĂNG
+- Trang chủ: header, hero, giới thiệu dự án, thống kê tính tự động (13 hồ sơ di sản, 4 thế giới, 9 khu vực nếu đã đối chiếu; số bản ghi con riêng), tìm kiếm, bộ sưu tập nổi bật, dòng thời gian, nơi lưu giữ và ghi nhận quyền; footer. Không dùng số liệu giả.
+- Kho tư liệu: dạng lưới/danh sách; tìm theo tên, mã, chủ đề, từ khóa có/không dấu; lọc danh mục, năm ghi danh, loại tư liệu, địa điểm, loại bản hiển thị, tình trạng bản gốc, mức kiểm chứng; sắp xếp, đếm kết quả, xóa bộ lọc. Bản ghi con tách khỏi thống kê UNESCO.
+- Chi tiết: URL riêng; tên, mã, niên đại (khác năm ghi danh), nguồn, trường Dublin Core, nơi lưu giữ, bản gốc/bản sao/bản số, quyền, ảnh thật được phép với chú thích nguồn ngay dưới, phóng to/thu nhỏ, toàn màn hình nếu có quyền; thông tin chưa rõ; liên kết bản ghi cha/con; phiên âm và dịch có nhãn riêng; in phiếu.
+- Dòng thời gian: mốc ghi danh từ dữ liệu, phân biệt cấp thế giới/khu vực, liên kết hồ sơ. Không dựng sự kiện không có nguồn.
+- Trợ lý Gemini: hỏi đáp có trích mã bản ghi, URL nguồn, nơi lưu giữ và loại bản. Tóm tắt, so sánh, giải thích thuật ngữ, câu hỏi gợi ý. Chỉ dùng dữ liệu đã được duyệt; nếu không đủ thông tin trả lời “Hiện tại hệ thống chưa có đủ tư liệu để xác nhận nội dung này.” Không gọi API với tư liệu bị hạn chế. Phiên âm từ ảnh chỉ khi được phép, nhãn chưa kiểm, không tự lưu vào dữ liệu. Nếu API lỗi hoặc chưa cấu hình, hiện thông báo thật.
+- Nguồn tư liệu và ghi nhận: ít nhất 7 nguồn thực sự dùng, ít nhất 3 nguồn chính thống; tên, cơ quan, URL, ngày truy cập thực tế, phạm vi đối chiếu, quyền ảnh. Ghi nhận người/đơn vị cho phép, vai trò, ngày, phạm vi; không công khai phần bị hạn chế.
+- Giới thiệu: thông tin sinh viên, phạm vi, mục tiêu, phương pháp, giới hạn, nội dung chưa làm được; ghi rõ dự án thực tập phi lợi nhuận.
+- Quản lý nội bộ: xác thực thực tế, phân quyền; thêm/sửa/xóa có xác nhận; nhập JSON/CSV, ảnh có quyền; kiểm tra trùng mã, trường thiếu, trạng thái bản nháp/chờ kiểm chứng/chờ quyền/được công bố. Nếu chưa thiết lập cơ chế xác thực bền vững, chỉ cung cấp công cụ nhập liệu cục bộ không có dữ liệu riêng tư, không mở chức năng ghi công khai. Lưu dữ liệu bền vững khi có backend; không giả lập thành công. Xuất JSON, CSV UTF-8 BOM, phiếu in; xuất công khai chỉ dữ liệu đã duyệt, không chứa thông tin hạn chế.
+- Nâng cao sau khi chức năng chính chạy ổn định: tham quan theo trình tự, đọc thành tiếng tiếng Việt, câu đố dựa trên nguồn có mã bản ghi, yêu thích lưu trên thiết bị và chia sẻ URL. Không thêm tính năng trang trí không hoạt động.
+
+4. DỮ LIỆU
+Tạo tulieu.json và sources.json riêng. Tách năm ghi danh khỏi niên đại tư liệu. Tất cả bản ghi dưới đây là danh mục nghiên cứu thứ cấp, chưa phải ảnh tự số hóa. Dùng mã A01-00001 đến A01-00015; hai bản ghi con có parent_id A01-00002. Chưa rõ thì ghi “Chưa xác định”, không tự tạo số đăng ký, người cho phép hay ngày đồng ý. Nơi lưu giữ dưới đây là phạm vi tham chiếu từ kế hoạch và nguồn; cần xác minh xã/phường và đơn vị giữ trực tiếp trước khi công bố. Mỗi hồ sơ cần có ít nhất hai nguồn đối chiếu theo mẫu kế hoạch; nếu chưa đủ, gắn nhãn chờ bổ sung. Không tự bịa nguồn thứ hai.
+
+Danh mục khởi tạo (mã | tên | năm ghi danh | cấp | nơi lưu giữ tham chiếu | mã nguồn | mô tả):
+A01-00001 | Mộc bản triều Nguyễn | 2009 | Thế giới | Trung tâm Lưu trữ quốc gia IV, Lâm Đồng | N01 | Ván khắc ghi lại sách và tư liệu thời Nguyễn.
+A01-00002 | Bia Tiến sĩ tại Văn Miếu – Quốc Tử Giám | 2011 | Thế giới | Văn Miếu – Quốc Tử Giám, Hà Nội | N02, N07 | 82 bia ghi danh người đỗ trong các khoa thi 1442–1779.
+A01-00003 | Mộc bản chùa Vĩnh Nghiêm | 2012 | Khu vực | Chùa Vĩnh Nghiêm, Bắc Ninh | N05 | Ván khắc kinh sách Phật giáo.
+A01-00004 | Thơ văn trên kiến trúc cung đình Huế | 2016 | Khu vực | Quần thể di tích Cố đô Huế | N05 | Thơ văn được thể hiện trên các công trình cung đình.
+A01-00005 | Mộc bản trường học Phúc Giang | 2016 | Khu vực | Trường Lưu, Hà Tĩnh | N05 | Ván khắc phục vụ hoạt động giáo dục của dòng họ Nguyễn Huy.
+A01-00006 | Châu bản triều Nguyễn | 2017 | Thế giới | Trung tâm Lưu trữ quốc gia I, Hà Nội | N03 | Tài liệu hành chính của triều Nguyễn.
+A01-00007 | Hoàng Hoa sứ trình đồ | 2018 | Khu vực | Dòng họ Nguyễn Huy, Trường Lưu, Hà Tĩnh | N05 | Tư liệu về hành trình đi sứ.
+A01-00008 | Bia ma nhai tại Ngũ Hành Sơn | 2022 | Khu vực | Ngũ Hành Sơn, Đà Nẵng | N05 | Văn tự khắc trực tiếp trên vách đá.
+A01-00009 | Văn bản Hán Nôm làng Trường Lưu | 2022 | Khu vực | Trường Lưu, Hà Tĩnh | N05 | Tập hợp văn bản Hán Nôm của cộng đồng địa phương.
+A01-00010 | Những bản đúc nổi trên chín đỉnh đồng ở Hoàng cung Huế | 2024 | Khu vực | Hoàng cung Huế | N05 | Hình ảnh và chữ đúc nổi trên Cửu Đỉnh.
+A01-00011 | Bộ sưu tập tài liệu của nhạc sĩ Hoàng Vân | 2025 | Thế giới | Gia đình nhạc sĩ, Hà Nội (theo kế hoạch) | N04 | Tư liệu sáng tác và hoạt động âm nhạc.
+A01-00012 | Văn bia Phố Hiến | 2026 | Khu vực | Phố Hiến, Hưng Yên | N06 | Văn bia thuộc không gian di tích Phố Hiến.
+A01-00013 | Ma nhai trên núi Non Nước | 2026 | Khu vực | Núi Non Nước, Ninh Bình | N06 | Tư liệu văn tự khắc trên núi đá.
+A01-00014 | Bia Tiến sĩ khoa Nhâm Tuất 1442 | — | Bản ghi con của 02 | Văn Miếu – Quốc Tử Giám, Hà Nội | N02, N07, N09 | Bia ghi khoa thi năm 1442; năm thi không phải năm ghi danh UNESCO.
+A01-00015 | Bia Tiến sĩ khoa thi năm 1779 | — | Bản ghi con của 02 | Văn Miếu – Quốc Tử Giám, Hà Nội | N02, N07 | Bia thuộc khoa thi cuối trong khoảng năm 1442–1779; cần đối chiếu phiếu riêng.
+
+Nguồn đối chiếu (N08 chỉ dùng cho cấu trúc metadata; N09 cần kiểm tra URL và hồ sơ từng bia):
+N01 | UNESCO – Woodblocks of Nguyen Dynasty | https://www.unesco.org/en/memory-world/woodblocks-nguyen-dynasty | Mộc bản triều Nguyễn
+N02 | UNESCO – Stone Stele Records of Royal Examinations | https://www.unesco.org/en/memory-world/stone-stele-records-royal-examinations-le-and-mac-dynasties-1442-1779?hub=1081 | Bộ bia Tiến sĩ
+N03 | UNESCO – Imperial Archives of Nguyen Dynasty | https://www.unesco.org/en/memory-world/imperial-archives-nguyen-dynasty-1802-1945 | Châu bản triều Nguyễn
+N04 | UNESCO – Memory of the World Register 2025 | https://www.unesco.org/en/memory-world/register2025 | Bộ sưu tập nhạc sĩ Hoàng Vân
+N05 | MOWCAP – Regional Register | https://www.mowcapunesco.org/core-activities/regional-register/ | Các hồ sơ ghi danh khu vực
+N06 | Bộ Ngoại giao – Ghi danh Ma nhai núi Non Nước và Văn bia Phố Hiến | https://web.mofa.gov.vn/web/guest/tin-chi-tiet/chi-tiet/ma-nhai-nui-non-nuoc-va-van-bia-pho-hien-duoc-ghi-danh-la-di-san-tu-lieu-khu-vuc-chau-a-8211-thai-binh-duong-63262-140.html | Hai hồ sơ năm 2026; tổng số 13
+N07 | Văn Miếu – Quốc Tử Giám: Khu Vườn Bia Tiến Sĩ | https://vanmieu.gov.vn/vi/doctoral-stelae-garden | Nơi lưu giữ và khoảng năm các khoa thi
+N08 | DCMI – Dublin Core Metadata Element Set | https://www.dublincore.org/specifications/dublin-core/dces/ | Chuẩn mô tả, không phải nguồn xác minh hiện vật
+N09 | Văn Miếu – Quốc Tử Giám: Danh mục bia Tiến sĩ | https://staging.vanmieu.gov.vn/vi/visit/doctoral-stelae | Tra cứu bia khoa thi 1442; cần đối chiếu từng bia
+
+Bộ trường dữ liệu bắt buộc:
+- Title: Nhan đề tư liệu.
+- Creator: Người/cơ quan tạo ra.
+- Subject: Chủ đề, từ khóa.
+- Description: Mô tả có căn cứ.
+- Publisher: Nơi công bố bản số.
+- Contributor: Người đóng góp.
+- Date: Niên đại tư liệu; ngày số hóa nếu có.
+- Type: Loại tài nguyên.
+- Format: Chất liệu, kích thước hoặc định dạng tệp.
+- Identifier: Mã định danh duy nhất.
+- Source: Nguồn gốc, mã nguồn và URL.
+- Language: Ngôn ngữ/chữ viết.
+- Relation: Quan hệ bộ sưu tập – bản ghi con.
+- Coverage: Phạm vi không gian và thời gian.
+- Rights: Quyền và điều kiện sử dụng.
+- current_location: Nơi lưu giữ hiện nay (xã/phường, tỉnh/thành).
+- historical_location: Địa danh tại thời điểm tư liệu.
+- display_copy: Bản gốc / bản sao / bản số của gốc / bản số của sao.
+- original_condition: Tình trạng bản gốc, mô tả ngắn.
+- registration_no: Số đăng ký hoặc mã tham khảo nội bộ.
+- permission: Người, vai trò, ngày đồng ý, phạm vi được phép.
+- excluded_content: Phần không được công bố.
+- verification: Mức kiểm chứng phiên âm, dịch nghĩa; người kiểm.
+Bổ sung recognition_year, recognition_level, parent_id, images (caption, source_url, rights, credit), digitized_by, digitized_at, transcription, translation, verification_by, verification_date, source_ids, unknown_notes, publication_status, updated_at. Tách trường kiểm chứng nội dung và quyền công bố; thông tin chưa rõ không đồng nghĩa đã kiểm chứng. Không gắn ảnh nếu quyền chưa được xác nhận. Dữ liệu văn bản tóm tắt thứ cấp có dẫn nguồn phải ghi rõ là hồ sơ mô tả, không gọi là bản số của gốc nếu không có tệp số thật; loại bản để “Chưa có bản hiển thị” khi chưa có ảnh/tệp. Khi thêm bản số thật chỉ chọn bốn loại theo yêu cầu. Không cung cấp dữ liệu hạn chế trong public bundle, API, JSON công khai hoặc xuất file.
+
+5. VAI TRÒ GEMINI VÀ KỸ THUẬT
+React, TypeScript, Tailwind CSS, Lucide Icons hoặc công nghệ phù hợp môi trường Build. Tách component, routing, dữ liệu và dịch vụ. Gemini API gọi phía server, khóa trong biến môi trường GEMINI_API_KEY; không đưa vào frontend, localStorage, GitHub hay bundle. Xử lý lỗi, timeout, loading, giới hạn yêu cầu, kiểm tra đầu vào và dữ liệu nguồn. Không tự động thay đổi dữ liệu từ câu trả lời AI. Chỉ công bố dữ liệu được duyệt; không bịa kết quả chạy thử. Xác thực thực tế cho thao tác ghi; nếu không thể triển khai, ghi rõ giới hạn và vô hiệu hóa ghi công khai. README mô tả cách chạy, cấu hình, nạp dữ liệu, kiểm thử, deploy và xuất file. Không tự tạo đường dẫn website/GitHub khi chưa deploy.
+
+6. GIAO DIỆN VÀ NGÔN NGỮ
+Phong cách digital museum cao cấp: nâu #35261C, đỏ trầm #782F35, vàng đồng #B39359, trắng ngà #F8F5EE, chữ #292524. Tiêu đề Noto Serif; nội dung Be Vietnam Pro hoặc font tiếng Việt tương đương. Bố cục editorial, khoảng trắng hợp lý, lưới rõ ràng, chuyển động nhẹ, không lạm dụng gradient, icon hay glassmorphism. Responsive mobile/tablet/desktop; tiếng Việt UTF-8, tương phản đủ, focus bàn phím, semantic HTML, aria-label, alt text, lazy loading ảnh được phép, SEO title/description, URL thân thiện, Open Graph. Không dùng ảnh AI hoặc ảnh minh họa giả hiện vật; dùng trạng thái trung tính “Chưa có ảnh được phép công bố”. Nhãn kiểm chứng xanh/ vàng/ xám kèm chữ, không phụ thuộc màu. Giao diện tự nhiên, không dùng lời văn sáo rỗng.
+
+7. RÀNG BUỘC VÀ ĐẦU RA
+Không bịa dữ liệu, quyền, nguồn, phiên âm, tình trạng gốc; không sao chép ảnh công khai nếu chưa rõ giấy phép; không công khai thông tin cá nhân hoặc vị trí cất giữ nhạy cảm; không tự động tạo bản ghi giả. Phân biệt 13 hồ sơ di sản với 2 hồ sơ con; thống kê theo dữ liệu thật. Các URL nguồn cần mở kiểm tra; không tính DCMI là nguồn xác minh hiện vật. Cung cấp website hoạt động, tệp cấu trúc và dữ liệu, bộ lọc, trang chi tiết, Gemini, xuất dữ liệu, phiếu, nguồn và ghi nhận, trang giới thiệu, checklist quản trị, README và hướng dẫn deploy công khai. Kiểm tra ít nhất 4 màn hình liên kết, tối thiểu 15 bản ghi đủ trường và 7 nguồn thực dùng (3 chính thống), quyền từng ảnh, bảo mật khóa, xuất dữ liệu, giao diện mobile, truy cập ẩn danh sau deploy. Nếu thiếu dữ liệu hoặc quyền, báo trạng thái chưa đạt, không tuyên bố hoàn thành. Ưu tiên chức năng bắt buộc trước tính năng nâng cao. Hãy trực tiếp triển khai mã nguồn, không chỉ trả về bản kế hoạch.
+
+GIAI ĐOẠN 2 – PROMPT RÀ SOÁT SAU KHI BUILD (gửi riêng sau khi có bản chạy)
+Bạn là Senior QA Engineer, UI/UX Auditor và chuyên gia kiểm kê di sản. Hãy đọc mã nguồn đang có, kiểm tra và sửa trực tiếp: routing, nút bấm, tìm kiếm/lọc, dữ liệu cha–con, thống kê 13 di sản/15 hồ sơ dự kiến, đủ 15 trường Dublin Core và 8 nhóm trường bổ sung, nguồn và quyền, ảnh có chú thích, Gemini server-side và dẫn nguồn, xuất JSON/CSV/phiếu, xác thực và phân quyền, không lộ dữ liệu nháp/khóa API, trạng thái tải/lỗi/rỗng, responsive, SEO và khả năng tiếp cận. Loại bỏ dữ liệu giả, lời văn sáo rỗng, liên kết chết, chức năng trang trí. Kiểm tra URL nguồn và xác thực thông tin mới; không bịa nguồn hoặc quyền để đạt số lượng. Không ghi nhận ảnh hay dữ liệu chưa kiểm là đã kiểm. Chỉ đánh dấu đạt khi kiểm thử được; báo cáo các tiêu chí chưa đạt và việc sinh viên phải bổ sung. Tạo checklist nghiệm thu và hướng dẫn chụp 3 ảnh thật: trang chủ, kho/chi tiết, trợ lý Gemini hoặc nguồn. Không dùng screenshot giả. Không tự tạo URL deploy. Sửa trực tiếp mã thay vì chỉ đề xuất.

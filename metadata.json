@@ -1,0 +1,6 @@
+{
+  "name": "Ký Ức Việt – Hồ sơ số di sản tư liệu",
+  "description": "Dự án xã hội phi lợi nhuận (Mã A01 – Trần Mạnh Trường – PH59448 – Nhóm 1, FPT Polytechnic × IMTA TECH) phục vụ tra cứu 13 di sản tư liệu Việt Nam được UNESCO ghi danh và 2 hồ sơ con chuyên đề bia Tiến sĩ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
