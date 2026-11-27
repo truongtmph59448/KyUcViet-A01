@@ -7,6 +7,46 @@ export class ApiRequestError extends Error {
   }
 }
 
+function sanitizeServerErrorMessage(
+  raw: string | null,
+  status: number
+): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  const lower = trimmed.toLowerCase();
+  const looksLikeJson =
+    (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+    (trimmed.startsWith('[') && trimmed.endsWith(']'));
+
+  if (
+    status === 503 ||
+    lower.includes('unavailable') ||
+    lower.includes('high demand') ||
+    lower.includes('overloaded') ||
+    (looksLikeJson && lower.includes('"code":503'))
+  ) {
+    // Preserve explicit Vietnamese configuration messages (e.g. missing GEMINI_API_KEY)
+    if (lower.includes('gemini_api_key')) {
+      return trimmed;
+    }
+    return 'Trợ lý Gemini đang quá tải. Vui lòng thử lại sau ít phút.';
+  }
+
+  if (status === 429 || lower.includes('resource_exhausted')) {
+    return 'Trợ lý Gemini đang quá tải hoặc vượt giới hạn lượt truy cập. Vui lòng thử lại sau ít phút.';
+  }
+
+  if (looksLikeJson) {
+    return status >= 500
+      ? 'Trợ lý Gemini đang quá tải hoặc gặp sự cố tạm thời. Vui lòng thử lại sau ít phút.'
+      : 'Yêu cầu chưa hợp lệ. Vui lòng kiểm tra lại thông tin và thử lại.';
+  }
+
+  return trimmed;
+}
+
 export async function apiFetchJson<T>(
   url: string,
   init?: RequestInit
@@ -34,12 +74,20 @@ export async function apiFetchJson<T>(
   }
 
   if (!res.ok) {
-    const serverMsg =
+    const rawMsg =
       parsed && typeof parsed.error === 'string' ? parsed.error : null;
+    const serverMsg = sanitizeServerErrorMessage(rawMsg, res.status);
+
     if (res.status === 404) {
       throw new ApiRequestError(
         serverMsg || `Không tìm thấy API hoặc dữ liệu tại ${url} (HTTP 404).`,
         404
+      );
+    }
+    if (res.status === 503) {
+      throw new ApiRequestError(
+        serverMsg || 'Trợ lý Gemini đang quá tải. Vui lòng thử lại sau ít phút.',
+        503
       );
     }
     if (res.status >= 500) {

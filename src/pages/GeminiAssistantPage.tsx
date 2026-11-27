@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   AlertTriangle,
   Loader2,
+  RotateCcw,
   Send,
   Upload,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ interface ChatMessage {
   content: string;
   groundedCount?: number;
   error?: boolean;
+  retryQuestion?: string;
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -43,6 +45,10 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
     verificationLabel: string;
   } | null>(null);
   const [ocrError, setOcrError] = useState<string | null>(null);
+  const [ocrRetryPayload, setOcrRetryPayload] = useState<{
+    mimeType: string;
+    imageBase64: string;
+  } | null>(null);
 
   const toggleRecordSelection = (id: string) => {
     setSelectedRecordIds((prev) =>
@@ -50,12 +56,20 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
     );
   };
 
-  const submitQuestion = async (questionText: string) => {
+  const submitQuestion = async (
+    questionText: string,
+    options?: { retryIndex?: number }
+  ) => {
     const trimmed = questionText.trim();
     if (!trimmed || loading) return;
 
-    setMessages((prev) => [...prev, { role: 'user', content: trimmed }]);
-    setInput('');
+    if (typeof options?.retryIndex === 'number') {
+      const idxToRemove = options.retryIndex;
+      setMessages((prev) => prev.filter((_, idx) => idx !== idxToRemove));
+    } else {
+      setMessages((prev) => [...prev, { role: 'user', content: trimmed }]);
+      setInput('');
+    }
     setLoading(true);
 
     try {
@@ -90,12 +104,66 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
           content:
             err instanceof Error
               ? err.message
-              : 'Lỗi kết nối tới máy chủ Gemini.',
+              : 'Trợ lý Gemini đang quá tải. Vui lòng thử lại sau ít phút.',
           error: true,
+          retryQuestion: trimmed,
         },
       ]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const runOcrRequest = async (payload: {
+    mimeType: string;
+    imageBase64: string;
+  }) => {
+    if (ocrLoading) return;
+    if (isRestricted) {
+      setOcrError('Không gọi Gemini API đối với tư liệu thuộc diện hạn chế.');
+      setOcrRetryPayload(null);
+      return;
+    }
+    if (!rightsConfirmed) {
+      setOcrError(
+        'Vui lòng tích xác nhận ảnh có quyền sử dụng hợp lệ trước khi tải lên.'
+      );
+      return;
+    }
+
+    setOcrError(null);
+    setOcrResult(null);
+    setOcrLoading(true);
+    try {
+      const data = await apiFetchJson<{
+        transcription?: string;
+        verificationLabel?: string;
+      }>('/api/gemini/transcribe-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rightsConfirmed,
+          isRestricted,
+          mimeType: payload.mimeType,
+          imageBase64: payload.imageBase64,
+        }),
+      });
+
+      setOcrResult({
+        transcription: data.transcription || '',
+        verificationLabel:
+          data.verificationLabel || 'Chưa kiểm chứng — bản nháp AI tham khảo',
+      });
+      setOcrRetryPayload(null);
+    } catch (err: unknown) {
+      setOcrRetryPayload(payload);
+      setOcrError(
+        err instanceof Error
+          ? err.message
+          : 'Trợ lý Gemini đang quá tải. Vui lòng thử lại sau ít phút.'
+      );
+    } finally {
+      setOcrLoading(false);
     }
   };
 
@@ -105,9 +173,11 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
 
     setOcrError(null);
     setOcrResult(null);
+    setOcrRetryPayload(null);
 
     if (isRestricted) {
       setOcrError('Không gọi Gemini API đối với tư liệu thuộc diện hạn chế.');
+      e.target.value = '';
       return;
     }
 
@@ -115,20 +185,22 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
       setOcrError(
         'Vui lòng tích xác nhận ảnh có quyền sử dụng hợp lệ trước khi tải lên.'
       );
+      e.target.value = '';
       return;
     }
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       setOcrError('Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.');
+      e.target.value = '';
       return;
     }
 
     if (file.size > 2.5 * 1024 * 1024) {
       setOcrError('Kích thước ảnh vượt quá 2.5MB.');
+      e.target.value = '';
       return;
     }
 
-    setOcrLoading(true);
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -141,31 +213,12 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
         reader.readAsDataURL(file);
       });
 
-      const data = await apiFetchJson<{
-        transcription?: string;
-        verificationLabel?: string;
-      }>('/api/gemini/transcribe-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rightsConfirmed,
-          isRestricted,
-          mimeType: file.type,
-          imageBase64: base64,
-        }),
-      });
-
-      setOcrResult({
-        transcription: data.transcription || '',
-        verificationLabel:
-          data.verificationLabel || 'Chưa kiểm chứng — bản nháp AI tham khảo',
-      });
+      await runOcrRequest({ mimeType: file.type, imageBase64: base64 });
     } catch (err: unknown) {
       setOcrError(
         err instanceof Error ? err.message : 'Lỗi đọc hoặc gửi tệp ảnh.'
       );
     } finally {
-      setOcrLoading(false);
       e.target.value = '';
     }
   };
@@ -326,7 +379,20 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
                 </label>
 
                 {ocrError && (
-                  <p className="text-[#782F35] font-medium">{ocrError}</p>
+                  <div className="space-y-2">
+                    <p className="text-[#782F35] font-medium">{ocrError}</p>
+                    {ocrRetryPayload && !isRestricted && rightsConfirmed && (
+                      <button
+                        type="button"
+                        onClick={() => runOcrRequest(ocrRetryPayload)}
+                        disabled={ocrLoading}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-[#782F35]/40 text-xs font-semibold text-[#782F35] hover:bg-[#782F35] hover:text-[#F8F5EE] transition-colors disabled:opacity-50"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Thử lại</span>
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {ocrResult && (
@@ -396,10 +462,25 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
                   {msg.error && (
                     <div className="flex items-center gap-1.5 font-semibold text-xs mb-1">
                       <AlertTriangle className="w-4 h-4 shrink-0" />
-                      <span>Thông báo lỗi thực tế từ máy chủ</span>
+                      <span>Không thể xử lý yêu cầu</span>
                     </div>
                   )}
                   <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {msg.error && msg.retryQuestion && (
+                    <div className="mt-3 pt-2 border-t border-[#782F35]/20">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          submitQuestion(msg.retryQuestion!, { retryIndex: idx })
+                        }
+                        disabled={loading}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-[#782F35]/40 text-xs font-semibold text-[#782F35] hover:bg-[#782F35] hover:text-[#F8F5EE] transition-colors disabled:opacity-50"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Thử lại</span>
+                      </button>
+                    </div>
+                  )}
                   {msg.role === 'assistant' && !msg.error && msg.groundedCount && (
                     <p className="mt-2 pt-2 border-t border-[#E2DACB] text-xs text-[#5C534A]">
                       Đã đối chiếu từ {msg.groundedCount} hồ sơ được công bố.
@@ -412,7 +493,7 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
             {loading && (
               <div className="p-4 rounded-lg bg-[#F8F5EE] border border-[#E2DACB] text-xs text-[#5C534A] inline-flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin text-[#782F35]" />
-                <span>Đang đối chiếu hồ sơ và tạo câu trả lời...</span>
+                <span>Đang xử lý câu hỏi và đối chiếu hồ sơ tư liệu...</span>
               </div>
             )}
           </div>

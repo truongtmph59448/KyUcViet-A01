@@ -1,12 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import {
   checkRateLimit,
+  classifyGeminiError,
+  generateContentWithRetry,
   getGeminiClient,
   getPublishedRecords,
   getSources,
   readJsonBody,
   sendJson,
-  withTimeout,
 } from '../_lib/geminiService.ts';
 
 const MODE_LABELS: Record<string, string> = {
@@ -129,30 +130,21 @@ ${JSON.stringify(
 YÊU CẦU CỦA NGƯỜI DÙNG:
 ${question}`;
 
-    const response = await withTimeout(
-      ai.models.generateContent({
-        model: 'gemini-4-hydrogen',
-        contents: prompt,
-        config: {
-          systemInstruction,
-        },
-      }),
-      25_000,
-      'Yêu cầu tới Gemini API quá thời gian chờ (25 giây).'
-    );
+    const { response, modelUsed } = await generateContentWithRetry(ai, {
+      contents: prompt,
+      systemInstruction,
+    });
 
     sendJson(res, 200, {
       answer:
         response.text ||
         'Hiện tại hệ thống chưa có đủ tư liệu để xác nhận nội dung này.',
       groundedCount: focusRecords.length,
+      model: modelUsed,
     });
   } catch (err: unknown) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : 'Lỗi không xác định khi gọi Gemini API.';
     console.error('[api/gemini/ask]', err);
-    sendJson(res, 502, { error: message });
+    const { httpStatus, userMessage } = classifyGeminiError(err);
+    sendJson(res, httpStatus, { error: userMessage });
   }
 }
