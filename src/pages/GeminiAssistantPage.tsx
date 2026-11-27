@@ -6,6 +6,7 @@ import {
   Upload,
 } from 'lucide-react';
 import type { HeritageRecord } from '../types.ts';
+import { apiFetchJson } from '../utils/api.ts';
 
 interface GeminiAssistantPageProps {
   records: HeritageRecord[];
@@ -58,7 +59,10 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/gemini/ask', {
+      const data = await apiFetchJson<{
+        answer?: string;
+        groundedCount?: number;
+      }>('/api/gemini/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -68,42 +72,25 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
         }),
       });
 
-      const data = (await res.json()) as {
-        answer?: string;
-        groundedCount?: number;
-        error?: string;
-      };
-
-      if (!res.ok) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            content:
-              data.error ||
-              'Không nhận được phản hồi hợp lệ từ máy chủ Gemini.',
-            error: true,
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            content:
-              data.answer ||
-              'Hiện tại hệ thống chưa có đủ tư liệu để xác nhận nội dung này.',
-            groundedCount: data.groundedCount,
-          },
-        ]);
-      }
-    } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
           content:
-            'Lỗi kết nối tới máy chủ. Vui lòng kiểm tra trạng thái dịch vụ và thử lại.',
+            data.answer ||
+            'Hiện tại hệ thống chưa có đủ tư liệu để xác nhận nội dung này.',
+          groundedCount: data.groundedCount,
+        },
+      ]);
+    } catch (err: unknown) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content:
+            err instanceof Error
+              ? err.message
+              : 'Lỗi kết nối tới máy chủ Gemini.',
           error: true,
         },
       ]);
@@ -154,7 +141,10 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch('/api/gemini/transcribe-preview', {
+      const data = await apiFetchJson<{
+        transcription?: string;
+        verificationLabel?: string;
+      }>('/api/gemini/transcribe-preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,21 +155,11 @@ export function GeminiAssistantPage({ records }: GeminiAssistantPageProps) {
         }),
       });
 
-      const data = (await res.json()) as {
-        transcription?: string;
-        verificationLabel?: string;
-        error?: string;
-      };
-
-      if (!res.ok) {
-        setOcrError(data.error || 'Không thể chạy thử phiên âm ảnh.');
-      } else {
-        setOcrResult({
-          transcription: data.transcription || '',
-          verificationLabel:
-            data.verificationLabel || 'Chưa kiểm chứng — bản nháp AI tham khảo',
-        });
-      }
+      setOcrResult({
+        transcription: data.transcription || '',
+        verificationLabel:
+          data.verificationLabel || 'Chưa kiểm chứng — bản nháp AI tham khảo',
+      });
     } catch (err: unknown) {
       setOcrError(
         err instanceof Error ? err.message : 'Lỗi đọc hoặc gửi tệp ảnh.'

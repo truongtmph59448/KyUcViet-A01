@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Bookmark,
   Compass,
+  Download,
   Grid2x2,
   HelpCircle,
   List,
@@ -12,7 +13,10 @@ import {
   X,
 } from 'lucide-react';
 import type { HeritageRecord, SourceRecord } from '../types.ts';
-import { removeVietnameseAccents } from '../utils/catalog.ts';
+import {
+  buildCsvWithUtf8Bom,
+  removeVietnameseAccents,
+} from '../utils/catalog.ts';
 import { ArchivalPlate } from '../components/ArchivalPlate.tsx';
 import { VerificationBadge } from '../components/VerificationBadge.tsx';
 
@@ -301,6 +305,26 @@ export function CatalogPage({
     setSortBy('id');
   };
 
+  const handleExport = (format: 'json' | 'csv') => {
+    const dataset = filtered.length > 0 ? filtered : records;
+    const content =
+      format === 'csv'
+        ? buildCsvWithUtf8Bom(dataset)
+        : JSON.stringify(dataset, null, 2);
+    const blob = new Blob([content], {
+      type:
+        format === 'csv'
+          ? 'text/csv;charset=utf-8'
+          : 'application/json;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ky-uc-viet-tu-lieu-cong-khai.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
       {/* Header & Utility Actions */}
@@ -320,6 +344,24 @@ export function CatalogPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => handleExport('json')}
+            className="px-3 py-2 text-xs font-semibold rounded-md border bg-white text-[#35261C] border-[#D6CEBE] hover:border-[#782F35] inline-flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Xuất JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleExport('csv')}
+            className="px-3 py-2 text-xs font-semibold rounded-md border bg-white text-[#35261C] border-[#D6CEBE] hover:border-[#782F35] inline-flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Xuất CSV (BOM)</span>
+          </button>
+
           <button
             type="button"
             onClick={() => {

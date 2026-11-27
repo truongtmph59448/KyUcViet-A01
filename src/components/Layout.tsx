@@ -8,8 +8,7 @@ export type AppRoute =
   | { name: 'timeline' }
   | { name: 'gemini' }
   | { name: 'sources' }
-  | { name: 'about' }
-  | { name: 'admin' };
+  | { name: 'about' };
 
 interface LayoutProps {
   route: AppRoute;
@@ -18,7 +17,6 @@ interface LayoutProps {
 }
 
 const NAV_ITEMS = [
-  { label: 'Kho tư liệu', path: '/kho-tu-lieu', routeName: 'catalog' },
   { label: 'Dòng thời gian', path: '/dong-thoi-gian', routeName: 'timeline' },
   { label: 'Trợ lý Gemini', path: '/tro-ly-gemini', routeName: 'gemini' },
   { label: 'Nguồn & Quyền', path: '/nguon-va-quyen', routeName: 'sources' },
@@ -36,6 +34,8 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
     setMobileMenuOpen(false);
     onNavigate(path);
   };
+
+  const catalogActive = route.name === 'catalog' || route.name === 'detail';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F5EE] text-[#292524]">
@@ -57,15 +57,13 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
             Ký Ức Việt
           </a>
 
-          {/* Zone 2: 5 concise single-line nav links */}
+          {/* Zone 2: 4 concise single-line nav links */}
           <nav
             aria-label="Điều hướng chính"
             className="hidden lg:flex items-center gap-6 text-sm font-medium text-[#5C534A]"
           >
             {NAV_ITEMS.map((item) => {
-              const active =
-                route.name === item.routeName ||
-                (item.routeName === 'catalog' && route.name === 'detail');
+              const active = route.name === item.routeName;
               return (
                 <a
                   key={item.path}
@@ -87,15 +85,16 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
           {/* Zone 3: 1 Primary CTA button + mobile menu trigger */}
           <div className="flex items-center gap-3 shrink-0">
             <a
-              href="/quan-ly"
-              onClick={(e) => handleLinkClick(e, '/quan-ly')}
+              href="/kho-tu-lieu"
+              onClick={(e) => handleLinkClick(e, '/kho-tu-lieu')}
+              aria-current={catalogActive ? 'page' : undefined}
               className={`hidden sm:inline-flex items-center justify-center px-4 py-2 text-xs font-semibold rounded-md transition-colors whitespace-nowrap shrink-0 ${
-                route.name === 'admin'
+                catalogActive
                   ? 'bg-[#782F35] text-[#F8F5EE]'
                   : 'bg-[#35261C] text-[#F8F5EE] hover:bg-[#782F35]'
               }`}
             >
-              Quản lý
+              Kho tư liệu
             </a>
             <button
               type="button"
@@ -119,6 +118,17 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
             aria-label="Điều hướng di động"
             className="lg:hidden border-t border-[#E2DACB] bg-[#F8F5EE] px-4 py-4 space-y-2"
           >
+            <a
+              href="/kho-tu-lieu"
+              onClick={(e) => handleLinkClick(e, '/kho-tu-lieu')}
+              className={`block px-3 py-2.5 rounded-md text-sm font-semibold text-center ${
+                catalogActive
+                  ? 'bg-[#782F35] text-[#F8F5EE]'
+                  : 'bg-[#35261C] text-[#F8F5EE]'
+              }`}
+            >
+              Kho tư liệu
+            </a>
             {NAV_ITEMS.map((item) => {
               const active = route.name === item.routeName;
               return (
@@ -136,13 +146,6 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
                 </a>
               );
             })}
-            <a
-              href="/quan-ly"
-              onClick={(e) => handleLinkClick(e, '/quan-ly')}
-              className="block px-3 py-2.5 rounded-md text-sm font-semibold bg-[#35261C] text-[#F8F5EE] text-center mt-2"
-            >
-              Quản lý nội bộ
-            </a>
           </nav>
         )}
       </header>
@@ -173,7 +176,7 @@ export function Layout({ route, onNavigate, children }: LayoutProps) {
               <br />
               Chương trình Thực tập sinh Đợt 15 — FPT Polytechnic × IMTA TECH
               <br />
-              Kế hoạch tuần 4 (Mốc 05/11/2026)
+              Kế hoạch tuần 4–5 (Mốc 05/11/2026)
             </p>
           </div>
 
